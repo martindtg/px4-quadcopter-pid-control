@@ -7,6 +7,8 @@ and Autonomous Mission modes.
 import csv
 from collections import defaultdict
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 plt.rcParams.update({
@@ -19,7 +21,7 @@ plt.rcParams.update({
 
 def plot_cpp_sim():
     series = defaultdict(lambda: {"t": [], "theta": [], "sp": [], "u": []})
-    with open("data/cpp_attitude_sim.csv") as f:
+    with open("cpp_attitude_sim.csv") as f:
         for row in csv.DictReader(f):
             c = row["controller"]
             series[c]["t"].append(float(row["time_s"]))
@@ -54,18 +56,16 @@ def plot_cpp_sim():
     ax2.legend(fontsize=8.2, loc="upper right")
 
     fig.tight_layout()
-    fig.savefig("assets/pid_laplace_step_response.png", dpi=180)
+    fig.savefig("pid_laplace_step_response.png", dpi=180)
     plt.close(fig)
 
 def plot_empirical_px4():
     trials = defaultdict(list)
-    with open("data/px4_flight_trials.csv") as f:
+    with open("px4_flight_trials.csv") as f:
         for r in csv.DictReader(f):
             trials[r["mode"]].append(r)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.2, 4.7), dpi=180)
-
-    # Panel 1: Trajectory Distance & Max Velocity Repeatability across 9 PX4 .ulg flights
     modes = ["Manual", "Stabilized", "Mission_PID"]
     labels = ["Manual\n(Open-Loop Pilot)", "Stabilized\n(Attitude Assist)", "Mission PID\n(Full Autonomy)"]
     colors = ["#ef4444", "#f59e0b", "#10b981"]
@@ -85,7 +85,6 @@ def plot_empirical_px4():
     ax1.set_title("PX4 Outdoor Flight Repeatability (9 Logged .ulg Trials)", fontsize=11, fontweight="bold")
     ax1.legend(loc="upper left", fontsize=8.8)
 
-    # Panel 2: Steady-State Error (%) Across Modes with Propagated GPS Error Bounds
     x = np.arange(3)
     w = 0.34
     roll_ess = [-30.0, -40.0, -30.0]
@@ -103,10 +102,10 @@ def plot_empirical_px4():
     ax2.legend(fontsize=8.3, loc="upper right")
 
     fig.tight_layout()
-    fig.savefig("assets/px4_flight_trials_analysis.png", dpi=180)
+    fig.savefig("px4_flight_trials_analysis.png", dpi=180)
     plt.close(fig)
 
 if __name__ == "__main__":
     plot_cpp_sim()
     plot_empirical_px4()
-    print("Generated plots in assets/")
+    print("Generated plots successfully.")
